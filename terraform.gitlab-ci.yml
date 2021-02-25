@@ -51,8 +51,8 @@ init:
   - echo "Using HTTP Backend at $TF_HTTP_ADDRESS"
   - terraform --version
   - terraform init -reconfigure
-    only:
-    - main
+  only:
+  - main
 
 get-secrets:
   stage: get-secrets
