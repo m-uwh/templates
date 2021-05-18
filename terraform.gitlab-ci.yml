@@ -1,5 +1,5 @@
 image:
-  name: hashicorp/terraform:light
+  name: hashicorp/terraform:0.14.10
   entrypoint:
     - '/usr/bin/env'
     - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
@@ -43,6 +43,25 @@ stages:
 
 .secrets:
   script:
+
+vault ping:
+  image:
+    name: hashicorp/vault:latest
+    entrypoint:
+        - '/usr/bin/env'
+        - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+  stage: .pre
+  script:
+    - echo "Check status of $VAULT_ADDR"
+    - |
+      until vault status
+      do
+        echo "Vault returned error or sealed"
+        sleep 5
+      done
+  rules:
+    - if: '$VAULT_ADDR'
+      when: always
 
 validate:
   stage: validate
@@ -126,7 +145,7 @@ destroy:
     - terraform destroy -auto-approve
   when: manual
   only:
-    - main
+    - main  
   environment:
     name: production
     action: stop
